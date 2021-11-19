@@ -23,8 +23,11 @@ def main():
         players.append(player)
 
     print(f'Players from FIN {datetime.now()}\n')
+    tuloste = f'{"name":20}{"team":12}{"goals":10}{"assists":14}{"points":10}'
+    print(tuloste)
+    print(len(tuloste)*'-')
 
-    for player in players:
+    for player in sorted(players, key=lambda player: player.points, reverse=True):
         if player.nationality == 'FIN':
             print(player)
     
