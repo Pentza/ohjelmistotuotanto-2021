@@ -8,7 +8,7 @@ Login With Correct Credentials
     Output Should Contain  Logged in
 
 Login With Incorrect password
-    Input Credentials  kalle  wrongPass
+    Input Credentials  kalle  wrongpass1
     Output Should Contain  Invalid username or password
 
 Login With Nonexistent Username
