@@ -1,5 +1,6 @@
 *** Settings ***
 Resource  resource.robot
+Resource  login_resource.robot
 Suite Setup  Open And Configure Browser
 Suite Teardown  Close Browser
 Test Setup  Create User And Go To Register Page
@@ -33,9 +34,41 @@ Register With Nonmatching Password And Password Confirmation
     Submit Credentials
     Register Should Fail With Message  Password and confirmation doesn't match
 
+Login After Successful Registration
+    Set Username  notkalle
+    Set Password  password123
+    Set Password Confirmation  password123
+    Submit Credentials
+    Register Should Succeed
+    Click Link  Continue to main page
+    Main Page Should Be Open
+    Click Button  Logout
+    Login Page Should Be Open
+    Set Username  notkalle
+    Set Password  password123
+    Click Button  Login
+    Login Should Succeed
+
+Login After Failed Registration
+    Set Username  kalle
+    Set Password  password123
+    Set Password Confirmation  password123
+    Submit Credentials
+    Register Should Fail With Message  User with username kalle already exists
+    Go To Login Page
+    Login Page Should Be Open
+    Set Username  notkalle
+    Set Password  password123
+    Click Button  Login
+    Login Should Fail With Message  Invalid username or password
+
+
 *** Keywords ***
 Register Should Succeed
     Welcome Page Should Be Open
+
+Login Should Succeed
+    Main Page Should Be Open
 
 Register Should Fail With Message
     [Arguments]  ${message}
