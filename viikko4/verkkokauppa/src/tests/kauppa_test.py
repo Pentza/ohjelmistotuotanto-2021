@@ -8,7 +8,7 @@ from tuote import Tuote
 class TestKauppa(unittest.TestCase):
     def setUp(self):
         self.pankki_mock = Mock()
-        self.viitegeneraattori_mock = Mock()
+        self.viitegeneraattori_mock = Mock(wraps=Viitegeneraattori())
         self.varasto_mock = Mock()
 
         self.kauppa = Kauppa(self.varasto_mock, self.pankki_mock, self.viitegeneraattori_mock)
@@ -82,6 +82,50 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "54321")
 
         self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "54321", "33333-44455", 4)
+
+    def test_aloita_asionti_metodi_nollaa_aiemman_ostoksen(self):
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+
+        self.kauppa.tilimaksu("pekka", "54321")
+
+        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "54321", "33333-44455", 2)
+
+    def test_pyydetaan_uusi_viite_jokaiseen_maksuun(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+
+        self.kauppa.tilimaksu("pekka", "54321")
+        self.pankki_mock.tilisiirto.assert_called_with("pekka", 2, "54321", "33333-44455", 5)
+
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+
+        self.kauppa.tilimaksu("pekka", "54321")
+        self.pankki_mock.tilisiirto.assert_called_with("pekka", 3, "54321", "33333-44455", 5)
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+
+        self.kauppa.tilimaksu("pekka", "54321")
+        self.pankki_mock.tilisiirto.assert_called_with("pekka", 4, "54321", "33333-44455", 5)
+
+    def test_tuotteen_poiston_jalkeen_tilisiirto_oikein(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.lisaa_koriin(3)
+        self.kauppa.poista_korista(1)
+
+        self.kauppa.tilimaksu("pekka", "54321")
+        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "54321", "33333-44455", 6)
+
+
 
 
 
